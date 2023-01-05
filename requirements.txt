@@ -1,12 +1,9 @@
 asgiref==3.6.0
 async-timeout==4.0.2
-channels==4.0.0
-channels-redis==4.0.0
 Django==4.1.4
 msgpack==1.0.4
 numpy==1.24.0
 protobuf==4.21.12
-redis==4.4.0
 sqlparse==0.4.3
 TBB==0.2
 python-dotenv==0.21.0
