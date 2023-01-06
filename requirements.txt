@@ -7,3 +7,4 @@ protobuf==4.21.12
 sqlparse==0.4.3
 TBB==0.2
 python-dotenv==0.21.0
+celery==5.2.7
