@@ -9,7 +9,7 @@ from .storages import FileUpload, s3_client
 
 @method_decorator(csrf_exempt, name='dispatch')
 def s3Upload(request) :
-    file = request.FILES['filename']
+    file = request.FILES['picture']
     email = request.POST['email']
     profile_image_url = FileUpload(s3_client).upload(file)
     result = {
