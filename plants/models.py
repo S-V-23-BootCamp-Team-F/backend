@@ -17,7 +17,7 @@ class Disease(models.Model):
     
 class Plant(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
-    disease_code = models.ForeignKey(Disease,on_delete=models.PROTECT)
+    disease = models.ForeignKey(Disease,on_delete=models.PROTECT)
     type = models.CharField(verbose_name="식물 종류",max_length=10)
     picture = models.URLField(verbose_name="식물 사진",max_length=250)
     created_at = models.DateTimeField(verbose_name='생성일',auto_now_add=True)
