@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'plants',
     'storages',
     'rest_framework',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
