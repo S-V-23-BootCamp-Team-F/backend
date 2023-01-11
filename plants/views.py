@@ -23,13 +23,11 @@ def s3Upload(request) :
 def gethistories(request):
     member = Member.objects.get(email=request.data['email'])
     histories = Plant.objects.filter(member = member.pk).select_related('disease')
-    
-    # diseases = []
-    for history in histories:
-        print(history.disease.disease_code)
-        # disease = Disease.objects.get(id=history.disease_id)
-
-    # histories = Plant.objects.select_related('member_id')
     serializer = PlantSerializer(histories,many=True)
-    print(serializer.data)
     return Response(serializer.data,status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+def deleteHistory(request,plant_id):
+    plant = Plant.objects.get(id=plant_id)
+    plant.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
