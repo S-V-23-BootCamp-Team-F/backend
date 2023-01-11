@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'celery',
     'members',
     'plants',
     'storages',
@@ -143,3 +144,14 @@ AWS_S3_OBJECT_PARAMETERS = {
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# celery setting
+# rabbitmq port 8080 / 포트변경 'amqp=rabbitmq://id:passward@rabbitmq:port//'
+BROKER_URL = 'amqp://guest:guest@rabbitmq:8080//'
+CELERY_RESULT_BACKEND = 'rpc://guest:guest@rabbitmq:5672//'
+
+
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'
