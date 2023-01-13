@@ -5,7 +5,8 @@ from rest_framework.decorators import api_view
 from .storages import FileUpload, s3_client
 from .models import Member,Plant,Disease
 from rest_framework.response import Response
-from .serializer import PlantSerializer
+from .serializer import PlantSerializer, aiSeriallizer
+from .tasks import plantsAi
 # Create your views here.
 
 @csrf_exempt
@@ -31,3 +32,20 @@ def deleteHistory(request,plant_id):
     plant = Plant.objects.get(id=plant_id)
     plant.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def airequest(request) :
+    disMap = {0: '일소피해', 1: '정상', 2: '축과병', 3: '포도노균병', 4: '포도노균병반응', 5: '포도탄저병', 6: '포도탄저병반응'}
+    s3Url = request.data['url']
+    code = plantsAi.delay(s3Url).get()
+    name = disMap.get(code)
+
+    result = {
+        "message": "분석 성공",
+        "url" : s3Url,
+        "name" : name,
+        "diease_code" : code
+    }
+    serializer = aiSeriallizer(result)
+    return Response(serializer.data ,status.HTTP_200_OK)

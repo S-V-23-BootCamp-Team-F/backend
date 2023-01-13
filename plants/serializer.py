@@ -17,3 +17,9 @@ class PlantSerializer(serializers.ModelSerializer):
     # @classmethod
     # def setup_preloading(cls, queryset):
     #     return queryset.select_related("disease")
+
+class aiSeriallizer(serializers.Serializer):
+    message = serializers.CharField()
+    url = serializers.URLField()
+    name = serializers.CharField()
+    diease_code = serializers.CharField()
