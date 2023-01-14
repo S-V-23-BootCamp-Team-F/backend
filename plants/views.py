@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .storages import FileUpload, s3_client
+from .storagess import FileUpload, s3_client
 from .models import Member,Plant,Disease
 from rest_framework.response import Response
 from .serializer import PlantSerializer, aiSeriallizer
@@ -40,14 +40,12 @@ def airequest(request) :
     diseaseList = plantsAi.delay(s3Url).get()
     code = diseaseList[0]
     name = diseaseList[1]
-        
     result = {
         "message": "분석 성공",
         "url" : s3Url,
         "name" : name,
         "diease_code" : code
     }
-
     if (code == 100) :
         result = {
             "message": "이미지가 존재하지 않습니다.",
