@@ -36,16 +36,24 @@ def deleteHistory(request,plant_id):
 
 @api_view(['GET'])
 def airequest(request) :
-    disMap = {0: '일소피해', 1: '정상', 2: '축과병', 3: '포도노균병', 4: '포도노균병반응', 5: '포도탄저병', 6: '포도탄저병반응'}
     s3Url = request.data['url']
-    code = plantsAi.delay(s3Url).get()
-    name = disMap.get(code)
-
+    diseaseList = plantsAi.delay(s3Url).get()
+    code = diseaseList[0]
+    name = diseaseList[1]
+        
     result = {
         "message": "분석 성공",
         "url" : s3Url,
         "name" : name,
         "diease_code" : code
     }
+
+    if (code == 100) :
+        result = {
+            "message": "이미지가 존재하지 않습니다.",
+            "result": None 
+        }
+        return Response(result, status.HTTP_400_BAD_REQUEST)
+
     serializer = aiSeriallizer(result)
     return Response(serializer.data ,status.HTTP_200_OK)
