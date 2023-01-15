@@ -6,7 +6,6 @@ from members.models import Member
 # Create your models here.
 
 class Disease(models.Model):
-    code = models.CharField(verbose_name="질병 코드",max_length=10)
     name =models.CharField(verbose_name="질병 이름",max_length=100)
     cause = models.TextField(verbose_name="질병 원인")
     feature=models.TextField(verbose_name="병진")
