@@ -22,12 +22,17 @@ def s3Upload(request) :
 @api_view(['GET'])
 def gethistories(request):
     member = Member.objects.get(email=request.data['email'])
-    histories = Diagnosis.objects.filter(member = member.pk)
+    histories = Diagnosis.objects.filter(member = member.pk,status="OK")
     serializer = DiagnosisSerializer(histories,many=True)
-    return Response(serializer.data,status=status.HTTP_200_OK)
+    return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
-def deleteHistory(request,plant_id):
-    plant = Plant.objects.get(id=plant_id)
-    plant.delete()
+def deleteHistory(request,diagnosis_id):
+    diagnosis = Diagnosis.objects.get(id=diagnosis_id)
+    diagnosis.status = 'Close'
+    diagnosis.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+def toResponseFormat(message,result):
+    return {"message" : message,
+            "result" : result}
