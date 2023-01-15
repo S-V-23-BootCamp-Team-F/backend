@@ -25,13 +25,14 @@ class Plant(models.Model):
     def __str__(self):
         return self.type
 
-class Dignoisis(models.Model):
+class Diagnosis(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     disease = models.ForeignKey(Disease,on_delete=models.PROTECT)
     plant = models.ForeignKey(Plant,on_delete=models.PROTECT)
-    type = models.CharField(verbose_name="식물 종류",max_length=10)
-    picture = models.URLField(verbose_name="식물 사진",max_length=250)
+    picture = models.URLField(verbose_name="식물 사진",default='',max_length=500)
+    result_picture =models.URLField(verbose_name="판별 후 식물사진",default='',max_length=500)
+    status = models.CharField(default="OK" ,max_length=10)
     created_at = models.DateTimeField(verbose_name='생성일',auto_now_add=True)
-    
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.member,self.disease_code
