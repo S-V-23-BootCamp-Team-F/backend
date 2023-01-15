@@ -31,9 +31,11 @@ class MyS3Client:
 
     def upload(self, file):
         try:
+            print(str(file))
             file_id    = 'images/'+str(uuid.uuid4())
             extra_args = { 'ContentType' : file.content_type }
-
+            print(extra_args)
+            
             self.s3_client.upload_fileobj(
                     file,
                     self.bucket_name,

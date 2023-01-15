@@ -2,17 +2,17 @@ import urllib
 from .inference.detect import run
 from backend.celery import app
 import os, shutil, PIL
+from pathlib import Path
 
 def typeUrl(plantType) :
     # 고추, 포도, 딸기, 오이, 파프리카, 토마토
     plantList = [
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
-        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt'
+        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt")
     ]
     return plantList[plantType]
 
