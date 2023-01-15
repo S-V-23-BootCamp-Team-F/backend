@@ -3,9 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .storages import FileUpload, s3_client
-from .models import Member,Plant,Disease
+from .models import Member,Plant,Disease,Diagnosis
 from rest_framework.response import Response
-from .serializer import PlantSerializer
+from .serializer import PlantSerializer,DiagnosisSerializer
 # Create your views here.
 
 @csrf_exempt
@@ -22,8 +22,8 @@ def s3Upload(request) :
 @api_view(['GET'])
 def gethistories(request):
     member = Member.objects.get(email=request.data['email'])
-    histories = Plant.objects.filter(member = member.pk).select_related('disease')
-    serializer = PlantSerializer(histories,many=True)
+    histories = Diagnosis.objects.filter(member = member.pk)
+    serializer = DiagnosisSerializer(histories,many=True)
     return Response(serializer.data,status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
