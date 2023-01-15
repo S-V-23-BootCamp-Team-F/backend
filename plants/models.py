@@ -23,7 +23,7 @@ class Plant(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.type
+        return self.plant_type
 
 class Diagnosis(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
@@ -34,5 +34,6 @@ class Diagnosis(models.Model):
     status = models.CharField(default="OK" ,max_length=10)
     created_at = models.DateTimeField(verbose_name='생성일',auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
-        return self.member,self.disease_code
+        return self.disease
