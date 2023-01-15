@@ -1,13 +1,33 @@
 import urllib
-from .inference.inference import expect_image
+from .inference.detect import run
 from backend.celery import app
+import os, shutil, PIL
+
+def typeUrl(plantType) :
+    # 고추, 포도, 딸기, 오이, 파프리카, 토마토
+    plantList = [
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',
+        '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt'
+    ]
+    return plantList[plantType]
+
 
 
 @app.task()
-def plantsAi(imageUrl):
+def plantsAi(imageUrl, plantType):
+    diseaseName = run(weights= typeUrl(plantType), source= imageUrl)
+
     # try:
-    code = expect_image(imageUrl)
+
     # except urllib.error.HTTPError:
     #     result = [100, "분석 실패"]
     #     return result
-    return code
+
+
+
+    return diseaseName

@@ -22,4 +22,4 @@ class aiSeriallizer(serializers.Serializer):
     message = serializers.CharField()
     url = serializers.URLField()
     name = serializers.CharField()
-    diease_code = serializers.CharField()
+    result_url = serializers.URLField()

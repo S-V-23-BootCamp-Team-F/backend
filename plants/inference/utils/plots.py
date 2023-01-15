@@ -81,7 +81,7 @@ class Annotator:
                                        size=font_size or max(round(sum(self.im.size) / 2 * 0.035), 12))
         else:  # use cv2
             self.im = im
-        self.lw = line_width + 10 or max(round(sum(im.shape) / 2 * 0.003), 2) + 10  # line width ################################# + 3
+        self.lw = line_width + 5 or max(round(sum(im.shape) / 2 * 0.003), 2) + 10  # line width ################################# + 3
 
     def box_label(self, box, label='', color=(128, 128, 128), txt_color=(255, 255, 255)):
         # Add one xyxy box to image with label

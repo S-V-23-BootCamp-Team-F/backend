@@ -37,21 +37,21 @@ def deleteHistory(request,plant_id):
 @api_view(['GET'])
 def airequest(request) :
     s3Url = request.data['url']
-    diseaseList = plantsAi.delay(s3Url).get()
-    code = diseaseList[0]
-    name = diseaseList[1]
+    diseaseType = request.data['type']
+    diseaseAi = plantsAi.delay(s3Url, diseaseType).get()
+    diseaseName = (diseaseAi.split())[0]
+
+    file = request.FILES['picture']
+    profile_image_url = FileUpload(s3_client).upload(file)
+
+
+
     result = {
-        "message": "분석 성공",
-        "url" : s3Url,
-        "name" : name,
-        "diease_code" : code
+        "message": "분석성공",
+        "url": s3Url,
+        "name": diseaseName,
+        "result_url": profile_image_url,
     }
-    if (code == 100) :
-        result = {
-            "message": "이미지가 존재하지 않습니다.",
-            "result": None 
-        }
-        return Response(result, status.HTTP_400_BAD_REQUEST)
 
     serializer = aiSeriallizer(result)
     return Response(serializer.data ,status.HTTP_200_OK)

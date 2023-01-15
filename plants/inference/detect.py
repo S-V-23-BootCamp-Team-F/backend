@@ -53,7 +53,7 @@ from utils.torch_utils import select_device, smart_inference_mode
 
 @smart_inference_mode()
 def run(
-        weights=ROOT / '/backend/plants/inference/pepper.pt',  # model path or triton URL ###################### 학습 시키 파일로 변경
+        weights=ROOT / '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt',  # model path or triton URL ###################### 학습 시키 파일로 변경
         source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
@@ -97,6 +97,10 @@ def run(
 
     # Load model
     device = select_device(device)
+########################################################################################################################################################################################################
+    # image = urllib.request.urlopen(weights)
+    # img = PIL.Image.open(image)
+    
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
@@ -172,8 +176,8 @@ def run(
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
                         label = None  ########################################## 조건문 내림(출력 이미지에 글씨 출력을 하지 않게 하기 위해서)
-                        prtint_label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}') ############################# 추가
-                        (prtint_label) ############################# 출력을 위한 추가
+                        print_label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}') ############################# 추가
+                        (print_label) ############################# 출력을 위한 추가
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
@@ -218,6 +222,9 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
+        # strip_optimizer(img[0])  # update model (to fix SourceChangeWarning)
+    print("$########$########$########$########$########$########")
+    return print_label
 
 
 def parse_opt():
@@ -255,8 +262,12 @@ def parse_opt():
     return opt
 
 
-
-    
-
 ########################################### 실행 에시
-run(source = '/backend/plants/inference/test_pepper.png')
+
+# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/pepper1.jpeg")
+# print (str)
+
+
+
+# if os.path.exists("plants/inference/runs"):
+#     shutil.rmtree("plants/inference/runs")
