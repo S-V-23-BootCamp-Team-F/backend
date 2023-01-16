@@ -11,7 +11,7 @@ WORKDIR /backend
 
 # Copy project
 COPY . ./
-
+RUN apt-get update && apt-get install libgl1 -y
 # install dependencies
 RUN python3 -m pip install --upgrade pip setuptools
 RUN pip install -r requirements.txt
