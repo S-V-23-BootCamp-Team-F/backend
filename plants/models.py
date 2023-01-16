@@ -1,9 +1,5 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from members.models import Member
-# Create your models here.
 
 class Disease(models.Model):
     name =models.CharField(verbose_name="질병 이름",max_length=100)
