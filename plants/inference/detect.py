@@ -271,5 +271,6 @@ def parse_opt():
 
 ########################################### 실행 에시
 
-# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/0474dba9-5c3f-48b3-8878-4429036eb385.png")
+# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/653abe61-7180-4216-8cd5-f7ebd579d87f.png") 비정상
+# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/539b33fb-10b9-446c-8b89-d1175ba391aa.png") 정상
 # print (str)

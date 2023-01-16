@@ -51,11 +51,20 @@ def deleteHistory(request,plant_id):
 @api_view(['GET'])
 def airequest(request) :
     s3Url = request.data['picture']
-    diseaseType = request.data['type']
-    aiList = plantsAi.delay(s3Url, diseaseType).get()
-
-    # s3에 이미지 올리기
     imagaName = (s3Url.split("/"))[-1]
+    diseaseType = request.data['type']
+    try:
+        aiList = plantsAi.delay(s3Url, diseaseType).get()
+    except ValueError:
+        # 분석에 실패했을 때
+        result = {
+            "message": "분석에 실패하였습니다.",
+            "result": None
+        }
+        os.remove(imagaName)
+        shutil.rmtree("plants/inference/runs")
+        return Response(result, status.HTTP_202_ACCEPTED)
+    # s3에 이미지 올리기
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imagaName)
     data = open(resultImgeUrl,'rb')
     s3 = boto3.resource(
