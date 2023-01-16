@@ -10,17 +10,21 @@ from .tasks import plantsAi
 import os, shutil, uuid, boto3
 from pathlib import Path
 from dotenv import load_dotenv
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 load_dotenv()
-
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
 AWS_REGION = os.environ.get('AWS_REGION')
 S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+
+
 # Create your views here.
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def s3Upload(request) :
     file = request.FILES['picture']
     profile_image_url = FileUpload(s3_client).upload(file)
@@ -32,6 +36,7 @@ def s3Upload(request) :
     return JsonResponse(result, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def gethistories(request):
     member = Member.objects.get(email=request.data['email'])
     histories = Diagnosis.objects.filter(member = member.pk,status="OK")
@@ -93,6 +98,9 @@ def airequest(request) :
     serializer = aiSeriallizer(result)
     return Response(serializer.data ,status.HTTP_200_OK)
     
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def deleteHistory(request,diagnosis_id):
     diagnosis = Diagnosis.objects.get(id=diagnosis_id)
     diagnosis.status = 'Close'
