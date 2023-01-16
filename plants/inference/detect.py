@@ -141,6 +141,7 @@ def run(
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
 
         # Process predictions
+        ailist = []
         for i, det in enumerate(pred):  # per image
             seen += 1
             if webcam:  # batch_size >= 1
@@ -178,6 +179,7 @@ def run(
                         label = None  ########################################## 조건문 내림(출력 이미지에 글씨 출력을 하지 않게 하기 위해서)
                         print_label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}') ############################# 추가
                         (print_label) ############################# 출력을 위한 추가
+                        ailist.append(print_label)
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
@@ -224,7 +226,7 @@ def run(
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
         # strip_optimizer(img[0])  # update model (to fix SourceChangeWarning)
     print("$########$########$########$########$########$########")
-    return print_label
+    return ailist
 
 
 def parse_opt():
@@ -264,10 +266,12 @@ def parse_opt():
 
 ########################################### 실행 에시
 
-# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/pepper1.jpeg")
-# print (str)
-
-
+str = run(weights= '/Users/ijiyoon/Documents/GitHub/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/pepper1.jpeg")
+result_list = []
+for s in str:
+    result_list.append((s.split())[0])
+result_list.remove('작물')
+print(set(result_list))
 
 # if os.path.exists("plants/inference/runs"):
 #     shutil.rmtree("plants/inference/runs")
