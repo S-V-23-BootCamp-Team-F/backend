@@ -82,11 +82,24 @@ def airequest(request) :
     shutil.rmtree("plants/inference/runs")
     os.remove(imagaName)
 
+    disease = Disease.objects.get(name = aiList[0])
+    print (disease)
+    # diseaseCause = disease.cause
+    # print (diseaseCause)
+
+
+
+
+
+
     result = {
         "message": "분석성공",
         "url": s3Url,
         "name": aiList[0],
         "result_url": profile_image_url,
+        "cause":"이유",
+        "feature":"특징",
+        "solution":"해결책"
     }
     serializer = aiSeriallizer(result)
     return Response(serializer.data ,status.HTTP_200_OK)
