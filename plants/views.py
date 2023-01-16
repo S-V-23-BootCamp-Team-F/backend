@@ -3,16 +3,13 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .storagess import FileUpload, s3_client
-from .models import Member,Plant,Disease
+from .models import Member,Plant, Disease
 from rest_framework.response import Response
 from .serializer import PlantSerializer, aiSeriallizer
 from .tasks import plantsAi
-import urllib, PIL, os, shutil, requests, pathlib
+import os, shutil, uuid, boto3
 from pathlib import Path
-import boto3
-import uuid
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -64,7 +61,8 @@ def airequest(request) :
         os.remove(imagaName)
         shutil.rmtree("plants/inference/runs")
         return Response(result, status.HTTP_202_ACCEPTED)
-    
+
+    # 정상 처리
     if (len(aiList) == 0):
         aiList.append("정상")
 
