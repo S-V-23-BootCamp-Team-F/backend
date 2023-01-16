@@ -271,5 +271,5 @@ def parse_opt():
 
 ########################################### 실행 에시
 
-# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/pepper1.jpeg")
+# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/0474dba9-5c3f-48b3-8878-4429036eb385.png")
 # print (str)

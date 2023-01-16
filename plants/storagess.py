@@ -32,7 +32,7 @@ class MyS3Client:
     def upload(self, file):
         try:
             print(str(file))
-            file_id    = 'images/'+str(uuid.uuid4())
+            file_id    = 'images/'+str(uuid.uuid4())+'.png'
             extra_args = { 'ContentType' : file.content_type }
             print(extra_args)
             
