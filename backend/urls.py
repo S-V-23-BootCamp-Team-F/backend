@@ -39,6 +39,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/v1/plants/", include("plants.urls")),
     path('', include('django_prometheus.urls')),
+    path("api/v1/members/", include("members.urls"))
 ]
 
 if settings.DEBUG:
