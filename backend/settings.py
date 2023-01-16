@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'storages',
     'rest_framework',
     'drf_yasg',
-    'django_prometheus'
+    'django_prometheus',
     'rest_framework_simplejwt',
 ]
 
