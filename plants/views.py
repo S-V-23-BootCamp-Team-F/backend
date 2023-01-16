@@ -9,6 +9,17 @@ from .serializer import PlantSerializer, aiSeriallizer
 from .tasks import plantsAi
 import urllib, PIL, os, shutil, requests, pathlib
 from pathlib import Path
+import boto3
+import uuid
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
+AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
+AWS_REGION = os.environ.get('AWS_REGION')
+S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 # Create your views here.
 
 @csrf_exempt
@@ -16,6 +27,7 @@ from pathlib import Path
 def s3Upload(request) :
     file = request.FILES['picture']
     profile_image_url = FileUpload(s3_client).upload(file)
+
     result = {
         "message" : "사진 업로드 성공",
         "url" : profile_image_url
@@ -45,31 +57,18 @@ def airequest(request) :
 
     # s3에 올릴 이미지 경로
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", "pepper2.png")
+    data = open(result,'rb')
 
-    # image = urllib.request.urlopen(image)
-    # img = PIL.Image.open(image)
+    s3 = boto3.resource(
+        's3',
+        aws_access_key_id     = AWS_ACCESS_KEY,
+        aws_secret_access_key = AWS_SECRET_KEY
+    )
+
+    file_id    = 'aiimages/'+str(uuid.uuid4())+'.png'
+    s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
     
-    # file = PIL.Image.open(resultImgeUrl)
-    # path -> form
-    
-    # response = requests.get(resultImgeUrl)
-    # data = {'param1': 'value1', 'param2': 'value'}
-    # res = requests.post(resultImgeUrl)
-    # p_file = pathlib.Path(resultImgeUrl)
-
-    # user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
-    # values = {'name': 'Michael Foord',
-    #         'location': 'Northampton',
-    #         'language': 'Python' }
-    headers = {'Content-Type': 'multipart/form-data; boundary=<calculated when request is sent>'}
-
-    # data = urllib.parse.urlencode(values)
-    # data = data.encode('ascii')
-
-
-    p_file = pathlib.Path(resultImgeUrl)
-
-    profile_image_url = FileUpload(s3_client).upload(p_file)
+    profile_image_url = 'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/aiimages/{file_id}'
 
     # 폴더 삭제
     # if os.path.exists("runs"):
