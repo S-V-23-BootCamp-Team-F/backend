@@ -70,6 +70,7 @@ def airequest(request) :
     # 폴더 삭제
     # if os.path.exists("runs"):
     shutil.rmtree("plants/inference/runs")
+    os.remove(imagaName)
 
     result = {
         "message": "분석성공",
