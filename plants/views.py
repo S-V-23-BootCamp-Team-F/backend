@@ -56,7 +56,7 @@ def airequest(request) :
     try:
         aiList = plantsAi.delay(s3Url, diseaseType).get()
     except ValueError:
-        # 분석에 실패했을 때
+        # 분석에 실패 시 예외 처리
         result = {
             "message": "분석에 실패하였습니다.",
             "result": None
@@ -64,6 +64,10 @@ def airequest(request) :
         os.remove(imagaName)
         shutil.rmtree("plants/inference/runs")
         return Response(result, status.HTTP_202_ACCEPTED)
+    
+    if (len(aiList) == 0):
+        aiList.append("정상")
+
     # s3에 이미지 올리기
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imagaName)
     data = open(resultImgeUrl,'rb')
