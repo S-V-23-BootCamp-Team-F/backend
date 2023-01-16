@@ -2,14 +2,17 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from .storages import FileUpload, s3_client
 from .models import Member,Plant,Disease,Diagnosis
 from rest_framework.response import Response
 from .serializer import PlantSerializer,DiagnosisSerializer
+from rest_framework.decorators import permission_classes
 # Create your views here.
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def s3Upload(request) :
     file = request.FILES['picture']
     profile_image_url = FileUpload(s3_client).upload(file)
@@ -20,6 +23,7 @@ def s3Upload(request) :
     return JsonResponse(result, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def gethistories(request):
     member = Member.objects.get(email=request.data['email'])
     histories = Diagnosis.objects.filter(member = member.pk,status="OK")
@@ -27,6 +31,7 @@ def gethistories(request):
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def deleteHistory(request,diagnosis_id):
     diagnosis = Diagnosis.objects.get(id=diagnosis_id)
     diagnosis.status = 'Close'
