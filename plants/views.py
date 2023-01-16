@@ -3,9 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .storagess import FileUpload, s3_client
-from .models import Member,Plant, Disease
+from .models import Member,Plant, Disease,Diagnosis
 from rest_framework.response import Response
-from .serializer import PlantSerializer, aiSeriallizer
+from .serializer import PlantSerializer, aiSeriallizer,DiagnosisSerializer
 from .tasks import plantsAi
 import os, shutil, uuid, boto3
 from pathlib import Path
@@ -34,16 +34,9 @@ def s3Upload(request) :
 @api_view(['GET'])
 def gethistories(request):
     member = Member.objects.get(email=request.data['email'])
-    histories = Plant.objects.filter(member = member.pk).select_related('disease')
-    serializer = PlantSerializer(histories,many=True)
-    return Response(serializer.data,status=status.HTTP_200_OK)
-
-@api_view(['DELETE'])
-def deleteHistory(request,plant_id):
-    plant = Plant.objects.get(id=plant_id)
-    plant.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
+    histories = Diagnosis.objects.filter(member = member.pk,status="OK")
+    serializer = DiagnosisSerializer(histories,many=True)
+    return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def airequest(request) :
@@ -99,3 +92,14 @@ def airequest(request) :
     }
     serializer = aiSeriallizer(result)
     return Response(serializer.data ,status.HTTP_200_OK)
+    
+def deleteHistory(request,diagnosis_id):
+    diagnosis = Diagnosis.objects.get(id=diagnosis_id)
+    diagnosis.status = 'Close'
+    diagnosis.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+def toResponseFormat(message,result):
+    return {"message" : message,
+            "result" : result}
+

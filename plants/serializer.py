@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Plant,Disease
+from .models import Plant,Disease,Diagnosis
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
@@ -9,7 +9,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
         
 
 class PlantSerializer(serializers.ModelSerializer):
-    disease = DiseaseSerializer(read_only=True)
+
     class Meta:
         model=Plant
         fields = '__all__'
@@ -23,3 +23,11 @@ class aiSeriallizer(serializers.Serializer):
     url = serializers.URLField()
     name = serializers.CharField()
     result_url = serializers.URLField()
+    
+class DiagnosisSerializer(serializers.ModelSerializer):
+    disease = DiseaseSerializer(read_only=True)
+    plant = PlantSerializer(read_only=True)
+
+    class Meta:
+        model=Diagnosis
+        fields='__all__'
