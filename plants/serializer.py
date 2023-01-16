@@ -23,6 +23,9 @@ class aiSeriallizer(serializers.Serializer):
     url = serializers.URLField()
     name = serializers.CharField()
     result_url = serializers.URLField()
+    cause = serializers.CharField()
+    feature = serializers.CharField()
+    solution = serializers.CharField()
     
 class DiagnosisSerializer(serializers.ModelSerializer):
     disease = DiseaseSerializer(read_only=True)
