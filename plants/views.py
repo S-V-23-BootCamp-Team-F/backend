@@ -81,7 +81,6 @@ def airequest(request) :
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
     # 폴더 삭제
-    # if os.path.exists("runs"):
     shutil.rmtree("plants/inference/runs")
     os.remove(imagaName)
 
