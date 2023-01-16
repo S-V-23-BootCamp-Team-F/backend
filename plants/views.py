@@ -83,23 +83,19 @@ def airequest(request) :
     os.remove(imagaName)
 
     disease = Disease.objects.get(name = aiList[0])
-    print (disease)
-    # diseaseCause = disease.cause
-    # print (diseaseCause)
 
-
-
-
-
+    diseaseCause = disease.cause
+    diseasefeature = disease.feature
+    diseaseSolution = disease.solution
 
     result = {
         "message": "분석성공",
         "url": s3Url,
         "name": aiList[0],
         "result_url": profile_image_url,
-        "cause":"이유",
-        "feature":"특징",
-        "solution":"해결책"
+        "cause": diseaseCause,
+        "feature": diseasefeature,
+        "solution":diseaseSolution
     }
     serializer = aiSeriallizer(result)
     return Response(serializer.data ,status.HTTP_200_OK)
