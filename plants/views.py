@@ -57,7 +57,7 @@ def airequest(request) :
 
     # s3에 올릴 이미지 경로
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", "pepper2.png")
-    data = open(result,'rb')
+    data = open(resultImgeUrl,'rb')
 
     s3 = boto3.resource(
         's3',
@@ -68,11 +68,11 @@ def airequest(request) :
     file_id    = 'aiimages/'+str(uuid.uuid4())+'.png'
     s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
     
-    profile_image_url = 'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/aiimages/{file_id}'
+    profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
     # 폴더 삭제
     # if os.path.exists("runs"):
-    #     shutil.rmtree("runs")
+    shutil.rmtree("plants/inference/runs")
 
     result = {
         "message": "분석성공",
