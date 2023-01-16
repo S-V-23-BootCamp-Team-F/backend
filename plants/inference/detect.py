@@ -225,8 +225,14 @@ def run(
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
         # strip_optimizer(img[0])  # update model (to fix SourceChangeWarning)
-    print("$########$########$########$########$########$########")
-    return ailist
+
+    #인식한 label 리턴
+    result_list = []
+    for s in ailist:
+        result_list.append((s.split())[0])
+    result_list.remove('작물')
+
+    return result_list
 
 
 def parse_opt():
@@ -263,15 +269,7 @@ def parse_opt():
     print_args(vars(opt))
     return opt
 
-
 ########################################### 실행 에시
 
-str = run(weights= '/Users/ijiyoon/Documents/GitHub/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/pepper1.jpeg")
-result_list = []
-for s in str:
-    result_list.append((s.split())[0])
-result_list.remove('작물')
-print(set(result_list))
-
-# if os.path.exists("plants/inference/runs"):
-#     shutil.rmtree("plants/inference/runs")
+# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/pepper1.jpeg")
+# print (str)

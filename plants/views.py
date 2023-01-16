@@ -52,22 +52,19 @@ def deleteHistory(request,plant_id):
 def airequest(request) :
     s3Url = request.data['picture']
     diseaseType = request.data['type']
-    diseaseAi = plantsAi.delay(s3Url, diseaseType).get()
-    diseaseName = (diseaseAi.split())[0]
+    aiList = plantsAi.delay(s3Url, diseaseType).get()
 
-    # s3에 올릴 이미지 경로
-    resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", "pepper2.png")
+    # s3에 이미지 올리기
+    imagaName = (s3Url.split("/"))[-1]
+    resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imagaName)
     data = open(resultImgeUrl,'rb')
-
     s3 = boto3.resource(
         's3',
         aws_access_key_id     = AWS_ACCESS_KEY,
         aws_secret_access_key = AWS_SECRET_KEY
     )
-
     file_id    = 'aiimages/'+str(uuid.uuid4())+'.png'
     s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
-    
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
     # 폴더 삭제
@@ -77,7 +74,7 @@ def airequest(request) :
     result = {
         "message": "분석성공",
         "url": s3Url,
-        "name": diseaseName,
+        "name": aiList[0],
         "result_url": profile_image_url,
     }
     serializer = aiSeriallizer(result)

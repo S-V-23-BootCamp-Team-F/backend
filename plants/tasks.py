@@ -1,7 +1,5 @@
-import urllib
 from .inference.detect import run
 from backend.celery import app
-import os, shutil, PIL
 from pathlib import Path
 
 def typeUrl(plantType) :
@@ -21,13 +19,4 @@ def typeUrl(plantType) :
 @app.task()
 def plantsAi(imageUrl, plantType):
     diseaseName = run(weights= typeUrl(plantType), source= imageUrl)
-
-    # try:
-
-    # except urllib.error.HTTPError:
-    #     result = [100, "분석 실패"]
-    #     return result
-
-
-
     return diseaseName
