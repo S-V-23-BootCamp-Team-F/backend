@@ -48,9 +48,9 @@ def gethistories(request):
 
 @api_view(['GET'])
 def airequest(request) :
-    s3Url = request.query_params['picture']
-    imagaName = (s3Url.split("/"))[-1]
-    diseaseType = int(request.query_params['type'])
+    imagaName = request.GET['picture']
+    s3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
+    diseaseType = int(request.GET['type'])
     try:
         aiList = plantsAi.delay(s3Url, diseaseType).get()
     except ValueError:
