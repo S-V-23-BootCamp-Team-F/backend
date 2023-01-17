@@ -104,7 +104,7 @@ def airequest(request) :
     diagnosisSerializer.is_valid()
     diagnosisSerializer.save()
 
-
+#ㅇㄹㅇㄹㄴㅇㄹㄴㅇㄹ
 
     result = {
         "message": "분석성공",
