@@ -82,7 +82,7 @@ def login(request):
         # jwt 토큰 => 쿠키에 저장
         res.set_cookie("access", access_token, httponly=True)
         res.set_cookie("refresh", refresh_token, httponly=True)
-        return res
+        return Response(res,status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
