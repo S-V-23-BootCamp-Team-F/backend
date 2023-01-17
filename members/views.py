@@ -64,8 +64,10 @@ def login(request):
     # 이미 회원가입 된 유저일 때
     if user is not None:
         serializer = MemberSerializer(user)
+        print(serializer.data)
         # jwt 토큰 접근
         token = TokenObtainPairSerializer.get_token(user)
+        print(token)
         refresh_token = str(token)
         access_token = str(token.access_token)
         res = Response(
@@ -79,10 +81,11 @@ def login(request):
             },
             status=status.HTTP_200_OK,
         )
+        print(res.data)
         # jwt 토큰 => 쿠키에 저장
         res.set_cookie("access", access_token, httponly=True)
         res.set_cookie("refresh", refresh_token, httponly=True)
-        return Response(res,status=status.HTTP_200_OK)
+        return res
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
