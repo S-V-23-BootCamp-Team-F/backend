@@ -12,6 +12,10 @@ from pathlib import Path
 from dotenv import load_dotenv
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
+import jwt
+from django.conf import settings
+# from djangorestframework_simplejwt.tokens import AccessToken
+
 
 load_dotenv()
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
@@ -38,8 +42,7 @@ def s3Upload(request) :
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def gethistories(request):
-    member = Member.objects.get(email=request.data['email'])
-    histories = Diagnosis.objects.filter(member = member.pk,status="OK")
+    histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
     serializer = DiagnosisSerializer(histories,many=True)
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
