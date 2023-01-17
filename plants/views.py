@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .storagess import FileUpload, s3_client
-from .models import Member,Plant, Disease,Diagnosis
+from .models import Member, Plant, Disease, Diagnosis
 from rest_framework.response import Response
 from .serializer import PlantSerializer, aiSeriallizer,DiagnosisSerializer
 from .tasks import plantsAi
@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 import jwt
 from django.conf import settings
+from rest_framework.permissions import AllowAny
 # from djangorestframework_simplejwt.tokens import AccessToken
 
 
@@ -47,12 +48,14 @@ def gethistories(request):
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def airequest(request) :
-    imagaName = request.GET['picture']
-    s3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
-    diseaseType = int(request.GET['type'])
+    # 0=고추, 1=포도,2=딸기, 3=오이, 4=파프리카, 5=토마토
+    imagaName = request.GET.get("picture")
+    inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
+    plantType = int(request.GET.get("type"))
     try:
-        aiList = plantsAi.delay(s3Url, diseaseType).get()
+        aiList = plantsAi.delay(inputS3Url, plantType).get()
     except ValueError:
         # 분석에 실패 시 예외 처리
         result = {
@@ -66,7 +69,7 @@ def airequest(request) :
     # 정상 처리
     if (len(aiList) == 0):
         aiList.append("정상")
-
+    diseaseName = aiList[0]
     # s3에 이미지 올리기
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imagaName)
     data = open(resultImgeUrl,'rb')
@@ -83,16 +86,30 @@ def airequest(request) :
     shutil.rmtree("plants/inference/runs")
     os.remove(imagaName)
 
-    disease = Disease.objects.get(name = aiList[0])
-
+    # 질병 내용 가져오기
+    disease = Disease.objects.get(name = diseaseName)
     diseaseCause = disease.cause
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
 
+    # 진단 모델 생성
+    diagnosisData = {
+        "member": request.user.pk,
+        "plant" : plantType,
+        "disease" : disease.pk,
+        "picture" : inputS3Url,
+        "result_picture" : profile_image_url,
+    }
+    diagnosisSerializer = DiagnosisSerializer(data=diagnosisData)
+    diagnosisSerializer.is_valid()
+    diagnosisSerializer.save()
+
+
+
     result = {
         "message": "분석성공",
-        "url": s3Url,
-        "name": aiList[0],
+        "url": inputS3Url,
+        "name": diseaseName,
         "result_url": profile_image_url,
         "cause": diseaseCause,
         "feature": diseasefeature,
