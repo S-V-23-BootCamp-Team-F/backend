@@ -100,11 +100,12 @@ def airequest(request) :
         "picture" : inputS3Url,
         "result_picture" : profile_image_url,
     }
-    diagnosisSerializer = DiagnosisSerializer(data=diagnosisData)
-    diagnosisSerializer.is_valid()
-    diagnosisSerializer.save()
+    diagnosisSerializers = DiagnosisSerializer.validated_data.get(data=diagnosisData)
 
-#ㅇㄹㅇㄹㄴㅇㄹㄴㅇㄹ
+    diagnosisSerializers.is_valid()
+
+    print(diagnosisSerializers.errors)
+    diagnosisSerializers.save()
 
     result = {
         "message": "분석성공",
