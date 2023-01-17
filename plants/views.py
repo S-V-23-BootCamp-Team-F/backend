@@ -48,7 +48,7 @@ def gethistories(request):
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
 def airequest(request) :
     # 0=고추, 1=포도,2=딸기, 3=오이, 4=파프리카, 5=토마토
     imagaName = request.GET.get("picture")
@@ -88,19 +88,22 @@ def airequest(request) :
 
     # 질병 내용 가져오기
     disease = Disease.objects.get(name = diseaseName)
+    diseaseId = disease.pk
     diseaseCause = disease.cause
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
-
+    print(type(inputS3Url))
+    print(diseaseId)
+    print(type(profile_image_url))
     # 진단 모델 생성
     diagnosisData = {
         "member": request.user.pk,
         "plant" : plantType,
-        "disease" : disease.pk,
+        "disease" : diseaseId,
         "picture" : inputS3Url,
         "result_picture" : profile_image_url,
     }
-    diagnosisSerializers = DiagnosisSerializer.validated_data.get(data=diagnosisData)
+    diagnosisSerializers = DiagnosisSerializer(data=diagnosisData)
 
     diagnosisSerializers.is_valid()
 
