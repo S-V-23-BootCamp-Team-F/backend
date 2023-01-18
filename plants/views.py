@@ -10,12 +10,11 @@ from .tasks import plantsAi
 import os, shutil, uuid, boto3
 from pathlib import Path
 from dotenv import load_dotenv
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.decorators import permission_classes
 import jwt
 from django.conf import settings
 # from djangorestframework_simplejwt.tokens import AccessToken
-
 
 load_dotenv()
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
@@ -23,12 +22,11 @@ AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
 AWS_REGION = os.environ.get('AWS_REGION')
 S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 
-
 # Create your views here.
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny]) 
 def s3Upload(request) :
     file = request.FILES['picture']
     profile_image_url = FileUpload(s3_client).upload(file)
