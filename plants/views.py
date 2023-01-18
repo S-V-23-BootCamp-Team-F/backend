@@ -50,7 +50,8 @@ def gethistories(request):
 @api_view(['GET'])
 # @permission_classes([AllowAny])
 def airequest(request) :
-    # 0=고추, 1=포도,2=딸기, 3=오이, 4=파프리카, 5=토마토
+    
+    plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imagaName = request.GET.get("picture")
     inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
     plantType = int(request.GET.get("type"))
@@ -88,12 +89,12 @@ def airequest(request) :
 
     # 질병 내용 가져오기
     disease = Disease.objects.get(name = diseaseName)
-    diseaseId = int(disease.pk)
     diseaseCause = disease.cause
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
 
-    diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
+    # 진단 테이블 저장
+    diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
     diagnosis.save()
     
     result = {
