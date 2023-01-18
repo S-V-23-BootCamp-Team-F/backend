@@ -36,6 +36,7 @@ class Member(AbstractUser):
     email = models.EmailField(default="None",max_length=100, verbose_name="사용자 이메일",unique=True)
     password = models.CharField(verbose_name="사용자 비밀번호",max_length=100)
     date_joined = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
