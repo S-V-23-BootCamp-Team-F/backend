@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from .models import Member
 from django.contrib.auth import authenticate
@@ -26,32 +27,23 @@ from django.contrib.auth import authenticate
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
-    serializer = MemberSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
+    email = request.data.get('params')['email']
+    try: # 회원이 존재 -> 회원가입 실패
+        user = Member.objects.get(email=email)
+        return Response({"message : register fail"}, status=status.HTTP_202_ACCEPTED)
+    except ObjectDoesNotExist: # 회원이 존재하지 않으면? -> 회원가입 성공
+        serializer = MemberSerializer(data=request.data.get('params'))
         
-        # jwt 토큰 접근
-        token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(token)
-        access_token = str(token.access_token)
-        res = Response(
-            {
-                "user": serializer.data,
-                "message": "register successs",
-                "token": {
-                    "access": access_token,
-                    "refresh": refresh_token,
+        if serializer.is_valid():
+            user = serializer.save()
+            res = Response(
+                {
+                    "user": serializer.data,
+                    "message": "register successs",
                 },
-            },
             status=status.HTTP_201_CREATED,
-        )
-        
-        # jwt 토큰 => 쿠키에 저장
-        res.set_cookie("access", access_token, httponly=True)
-        res.set_cookie("refresh", refresh_token, httponly=True)
-        
-        return res
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            )
+            return res
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
