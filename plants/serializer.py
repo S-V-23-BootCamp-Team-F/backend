@@ -23,7 +23,9 @@ class PlantSerializer(serializers.ModelSerializer):
 class aiSeriallizer(serializers.Serializer):
     message = serializers.CharField()
     url = serializers.URLField()
-    name = serializers.CharField()
+    disease_name = serializers.CharField()
+    plant_name = serializers.CharField()
+    plant_explaination = serializers.CharField()
     result_url = serializers.URLField()
     cause = serializers.CharField()
     feature = serializers.CharField()

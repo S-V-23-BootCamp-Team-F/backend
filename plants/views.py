@@ -71,6 +71,7 @@ def airequest(request) :
     if (len(aiList) == 0):
         aiList.append("정상")
     diseaseName = aiList[0]
+    
     # s3에 이미지 올리기
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imagaName)
     data = open(resultImgeUrl,'rb')
@@ -93,14 +94,18 @@ def airequest(request) :
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
 
+    plantSave =Plant.objects.get(id=plantType+1)
+    plantExplaination= plantSave.explaination
     # 진단 테이블 저장
-    diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
+    diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
     diagnosis.save()
     
     result = {
         "message": "분석성공",
         "url": inputS3Url,
-        "name": diseaseName,
+        "disease_name": diseaseName,
+        "plant_name": plantList[plantType],
+        "plant_explaination": plantExplaination,
         "result_url": profile_image_url,
         "cause": diseaseCause,
         "feature": diseasefeature,
