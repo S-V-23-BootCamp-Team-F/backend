@@ -230,8 +230,7 @@ def run(
     result_list = []
     for s in ailist:
         result_list.append((s.split())[0])
-    result_list.remove('작물')
-
+    # return result_list
     return result_list
 
 
@@ -271,8 +270,11 @@ def parse_opt():
 
 ########################################### 실행 에시
 
-# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/653abe61-7180-4216-8cd5-f7ebd579d87f.png") 비정상
-# str = run(weights= '/Users/hwanghyeonseong/bootCamp/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/539b33fb-10b9-446c-8b89-d1175ba391aa.png") 정상
-# print (str)
-str = run(weights= '/backend/plants/inference/cucumber.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/cucumber1.jpeg")
-print (str)
+# str1 = run(weights= '/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/653abe61-7180-4216-8cd5-f7ebd579d87f.png") 비정상
+# str2 = run(weights= '/backend/plants/inference/pepper.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/539b33fb-10b9-446c-8b89-d1175ba391aa.png") 정상
+# print (str1)
+# str3 = run(weights= '/backend/plants/inference/cucumber.pt', source = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/cucumber1.jpeg")
+# print (str3)
+
+
+# cucumber1.jpeg / cucumber2.jpg

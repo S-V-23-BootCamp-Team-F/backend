@@ -3,7 +3,7 @@ from backend.celery import app
 from pathlib import Path
 
 def typeUrl(plantType) :
-    # 고추, 포도, 딸기, 오이, 파프리카, 토마토
+    # 0:고추, 1:포도, 2:딸기, 3:오이, 4:파프리카, 5:토마토
     plantList = [
         Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),

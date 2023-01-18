@@ -46,9 +46,8 @@ def gethistories(request):
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-# @permission_classes([AllowAny])
+@permission_classes([AllowAny])
 def airequest(request) :
-    
     plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imagaName = request.GET.get("picture")
     inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
@@ -65,9 +64,12 @@ def airequest(request) :
         shutil.rmtree("plants/inference/runs")
         return Response(result, status.HTTP_202_ACCEPTED)
 
+    if (aiList[0] == '작물') :
+        del aiList[0]
+
     # 정상 처리
     if (len(aiList) == 0):
-        aiList.append("정상")
+        aiList.insert(0,'정상')
     diseaseName = aiList[0]
     
     # s3에 이미지 올리기
@@ -94,9 +96,10 @@ def airequest(request) :
 
     plantSave =Plant.objects.get(id=plantType+1)
     plantExplaination= plantSave.explaination
-    # 진단 테이블 저장
-    diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
-    diagnosis.save()
+    # 진단 테이블 저장 / 비회원일 때는 저장 안함
+    if (request.user.pk != None) :
+        diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
+        diagnosis.save()
     
     result = {
         "message": "분석성공",
