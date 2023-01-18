@@ -93,30 +93,9 @@ def airequest(request) :
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
 
-    print(type(inputS3Url))
-    print(diseaseId)
-    print(type(profile_image_url))
-
-    # 진단 모델 생성
+    diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
+    diagnosis.save()
     
-
-
-    diagnosisData = {
-        "member": Member.objects.get(id=request.user.pk),
-        "plant" : Plant.objects.get(id=plantType),
-        "disease" : disease,
-        "picture" : inputS3Url,
-        "result_picture" : profile_image_url,
-    }
-    diagnosisSerializers = DiagnosisSerializer(data=diagnosisData)
-
-    if diagnosisSerializers.is_valid() :
-        diagnosisSerializers.save()
-    print(diagnosisSerializers.data)
-    # print(diagnosisSerializers.errors)
-    
-    
-
     result = {
         "message": "분석성공",
         "url": inputS3Url,
