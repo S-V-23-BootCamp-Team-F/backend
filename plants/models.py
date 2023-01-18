@@ -19,7 +19,7 @@ class Plant(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.plant_type
+        return self.type
 
 class Diagnosis(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)

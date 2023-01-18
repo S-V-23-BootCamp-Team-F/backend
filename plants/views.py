@@ -88,27 +88,34 @@ def airequest(request) :
 
     # 질병 내용 가져오기
     disease = Disease.objects.get(name = diseaseName)
-    diseaseId = disease.pk
+    diseaseId = int(disease.pk)
     diseaseCause = disease.cause
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
+
     print(type(inputS3Url))
     print(diseaseId)
     print(type(profile_image_url))
+
     # 진단 모델 생성
+    
+
+
     diagnosisData = {
-        "member": request.user.pk,
-        "plant" : plantType,
-        "disease" : diseaseId,
+        "member": Member.objects.get(id=request.user.pk),
+        "plant" : Plant.objects.get(id=plantType),
+        "disease" : disease,
         "picture" : inputS3Url,
         "result_picture" : profile_image_url,
     }
     diagnosisSerializers = DiagnosisSerializer(data=diagnosisData)
 
-    diagnosisSerializers.is_valid()
-
-    print(diagnosisSerializers.errors)
-    diagnosisSerializers.save()
+    if diagnosisSerializers.is_valid() :
+        diagnosisSerializers.save()
+    print(diagnosisSerializers.data)
+    # print(diagnosisSerializers.errors)
+    
+    
 
     result = {
         "message": "분석성공",
