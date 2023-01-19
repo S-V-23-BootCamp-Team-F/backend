@@ -13,8 +13,9 @@ WORKDIR /backend
 COPY . ./
 RUN apt-get update && apt-get install libgl1 -y
 # install dependencies
-RUN sudo pip3 install --upgrade pip setuptools
-RUN sudo pip3 install -r requirements.txt
+RUN apt install python3-pip
+RUN pip install --upgrade pip setuptools
+RUN pip install -r requirements.txt
 
 # django를 단독으로 실행할 때 사용 명령어
 # nginx를 이용해서 django를 실행할때는 주석처리!!
