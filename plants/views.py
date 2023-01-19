@@ -39,7 +39,7 @@ def s3Upload(request) :
     return JsonResponse(result, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def gethistories(request):
     email = request.query_params.get('email')
     member = Member.objects.get(email=email)
