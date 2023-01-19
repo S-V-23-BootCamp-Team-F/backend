@@ -52,10 +52,11 @@ def airequest(request) :
     imagaName = request.GET.get("picture")
     inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
     plantType = int(request.GET.get("type"))
-    try:
-        aiList = plantsAi.delay(inputS3Url, plantType).get()
-    except ValueError:
-        # 분석에 실패 시 예외 처리
+    # ai 리턴 값 리스트
+    aiList = plantsAi.delay(inputS3Url, plantType).get()
+    
+    # 분석 실패했을 때 리턴
+    if (len(aiList)==0) :
         result = {
             "message": "분석에 실패하였습니다.",
             "result": None
@@ -64,12 +65,16 @@ def airequest(request) :
         shutil.rmtree("plants/inference/runs")
         return Response(result, status.HTTP_202_ACCEPTED)
 
+    print ("#################################################################")
+    print (aiList)
+
     if (aiList[0] == '작물') :
         del aiList[0]
 
     # 정상 처리
     if (len(aiList) == 0):
         aiList.insert(0,'정상')
+
     diseaseName = aiList[0]
     
     # s3에 이미지 올리기
@@ -127,4 +132,3 @@ def deleteHistory(request,diagnosis_id):
 def toResponseFormat(message,result):
     return {"message" : message,
             "result" : result}
-
