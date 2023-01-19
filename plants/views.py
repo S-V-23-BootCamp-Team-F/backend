@@ -51,12 +51,12 @@ def airequest(request) :
     plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imageName = request.GET.get("picture")
     plantType = int(request.GET.get("type"))
-    inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imageName
+
+    # ai 리턴 값 리스트
+    aiList = plantsAi.delay(inputS3Url, plantType).get()
     
-    try:
-        aiList = plantsAi.delay(inputS3Url, plantType).get()
-    except ValueError:
-        # 분석에 실패 시 예외 처리
+    # 분석 실패했을 때 리턴
+    if (len(aiList)==0) :
         result = {
             "message": "분석에 실패하였습니다.",
             "result": None
@@ -65,9 +65,16 @@ def airequest(request) :
         shutil.rmtree("plants/inference/runs")
         return Response(result, status.HTTP_202_ACCEPTED)
 
+    print ("#################################################################")
+    print (aiList)
+
+    if (aiList[0] == '작물') :
+        del aiList[0]
+
     # 정상 처리
     if (len(aiList) == 0):
-        aiList.append("정상")
+        aiList.insert(0,'정상')
+
     diseaseName = aiList[0]
     
     # s3에 이미지 올리기
@@ -94,7 +101,8 @@ def airequest(request) :
 
     plantSave =Plant.objects.get(id=plantType+1)
     plantExplaination= plantSave.explaination
-    # 진단 테이블 저장
+
+    # 진단 테이블 저장 / 비회원일 때는 저장 안함
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
         diagnosis.save()
