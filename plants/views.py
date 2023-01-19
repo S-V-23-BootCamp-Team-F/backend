@@ -71,8 +71,8 @@ def airequest(request) :
     print ("#################################################################")
     print (aiList)
 
-    if (aiList[0] == '작물') :
-        del aiList[0]
+    removeSet= {'작물'}
+    aiList = [i for i in aiList if i not in removeSet]
 
     # 정상 처리
     if (len(aiList) == 0):
