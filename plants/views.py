@@ -41,7 +41,9 @@ def s3Upload(request) :
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def gethistories(request):
-    histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
+    email = request.query_params.get('email')
+    member = Member.objects.get(email=email)
+    histories = Diagnosis.objects.filter(member = member.pk,status="OK")
     serializer = DiagnosisSerializer(histories,many=True)
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
