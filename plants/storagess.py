@@ -31,9 +31,9 @@ class MyS3Client:
 
     def upload(self, file):
         try:
-            print(str(file))
-            file_id    = 'images/'+str(uuid.uuid4())+'.png'
             file_name = str(uuid.uuid4())+'.png'
+            file_id    = 'images/'+file_name
+            
             extra_args = { 'ContentType' : file.content_type }
             print(extra_args)
             
@@ -43,7 +43,6 @@ class MyS3Client:
                     file_id,
                     ExtraArgs = extra_args
                 )
-            #return f'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/{file_id}'
             return f'{file_name}'
         except :
             return None

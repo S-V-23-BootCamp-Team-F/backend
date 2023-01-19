@@ -49,9 +49,9 @@ def gethistories(request):
 @permission_classes([AllowAny])
 def airequest(request) :
     plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
-    imagaName = request.GET.get("picture")
-    inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imagaName
+    imageName = request.GET.get("picture")
     plantType = int(request.GET.get("type"))
+
     # ai 리턴 값 리스트
     aiList = plantsAi.delay(inputS3Url, plantType).get()
     
@@ -61,7 +61,7 @@ def airequest(request) :
             "message": "분석에 실패하였습니다.",
             "result": None
         }
-        os.remove(imagaName)
+        os.remove(imageName)
         shutil.rmtree("plants/inference/runs")
         return Response(result, status.HTTP_202_ACCEPTED)
 
@@ -78,20 +78,20 @@ def airequest(request) :
     diseaseName = aiList[0]
     
     # s3에 이미지 올리기
-    resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imagaName)
+    resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imageName)
     data = open(resultImgeUrl,'rb')
     s3 = boto3.resource(
         's3',
         aws_access_key_id     = AWS_ACCESS_KEY,
         aws_secret_access_key = AWS_SECRET_KEY
     )
-    file_id    = 'aiimages/'+str(uuid.uuid4())+'.png'
+    file_id    = 'aiimages/'+imageName
     s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
     # 폴더 삭제
     shutil.rmtree("plants/inference/runs")
-    os.remove(imagaName)
+    os.remove(imageName)
 
     # 질병 내용 가져오기
     disease = Disease.objects.get(name = diseaseName)
@@ -101,6 +101,7 @@ def airequest(request) :
 
     plantSave =Plant.objects.get(id=plantType+1)
     plantExplaination= plantSave.explaination
+
     # 진단 테이블 저장 / 비회원일 때는 저장 안함
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
