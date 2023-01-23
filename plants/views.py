@@ -39,13 +39,16 @@ def s3Upload(request) :
     return JsonResponse(result, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def gethistories(request):
-    email = request.query_params.get('email')
-    member = Member.objects.get(email=email)
-    histories = Diagnosis.objects.filter(member = member.pk,status="OK")
-    serializer = DiagnosisSerializer(histories,many=True)
-    return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
+    # email = request.query_params.get('email')
+    # member = Member.objects.get(email=email)
+    if request.user.pk :    
+        histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
+        serializer = DiagnosisSerializer(histories,many=True)
+        return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
+    else:
+        return Response(toResponseFormat("이메일이 존재하지 않습니다.",None),status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
