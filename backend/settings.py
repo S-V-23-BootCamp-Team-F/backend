@@ -104,8 +104,8 @@ CORS_ORIGIN_WHITELIST = [
     "https://127.0.0.1:3000",
     "https://localhost:8000",
     "https://127.0.0.1:8000",
-    "http://3.112.239.154:3000",
-    "https://3.112.239.154:3000",
+    "http://cropdoctor.shop:3000",
+    "https://cropdoctor.shop:3000/"
 ]
 
 
