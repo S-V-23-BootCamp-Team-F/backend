@@ -15,6 +15,7 @@ from rest_framework.decorators import permission_classes
 import jwt
 from django.conf import settings
 from rest_framework.permissions import AllowAny
+from django.core.exceptions import ObjectDoesNotExist
 # from djangorestframework_simplejwt.tokens import AccessToken
 
 load_dotenv()
@@ -69,8 +70,8 @@ def airequest(request) :
     print ("#################################################################")
     print (aiList)
 
-    if (aiList[0] == '작물') :
-        del aiList[0]
+    removeSet= {'작물'}
+    aiList = [i for i in aiList if i not in removeSet]
 
     # 정상 처리
     if (len(aiList) == 0):
@@ -95,7 +96,14 @@ def airequest(request) :
     os.remove(imageName)
 
     # 질병 내용 가져오기
-    disease = Disease.objects.get(name = diseaseName)
+    try :
+        disease = Disease.objects.get(name = diseaseName)
+    except ObjectDoesNotExist :
+        result = {
+        "message": "질병이름 오류"
+        }
+        return Response(result, status.HTTP_202_ACCEPTED)
+
     diseaseCause = disease.cause
     diseasefeature = disease.feature
     diseaseSolution = disease.solution
