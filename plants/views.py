@@ -54,10 +54,8 @@ def airequest(request) :
     plantType = int(request.GET.get("type"))
     inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imageName
 
-    # ai 리턴 값 리스트
     aiList = plantsAi.delay(inputS3Url, plantType).get()
     
-    # 분석 실패했을 때 리턴
     if (len(aiList)==0) :
         result = {
             "message": "분석에 실패하였습니다.",
@@ -73,13 +71,11 @@ def airequest(request) :
     removeSet= {'작물'}
     aiList = [i for i in aiList if i not in removeSet]
 
-    # 정상 처리
     if (len(aiList) == 0):
         aiList.insert(0,'정상')
 
     diseaseName = aiList[0]
     
-    # s3에 이미지 올리기
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imageName)
     data = open(resultImgeUrl,'rb')
     s3 = boto3.resource(
@@ -91,11 +87,11 @@ def airequest(request) :
     s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
-    # 폴더 삭제
     shutil.rmtree("plants/inference/runs")
     os.remove(imageName)
 
-    # 질병 내용 가져오기
+    if (diseaseName == '칼슘결핌') :
+        diseaseName = '칼슘결핍'
     try :
         disease = Disease.objects.get(name = diseaseName)
     except ObjectDoesNotExist :
@@ -111,7 +107,6 @@ def airequest(request) :
     plantSave =Plant.objects.get(id=plantType+1)
     plantExplaination= plantSave.explaination
 
-    # 진단 테이블 저장 / 비회원일 때는 저장 안함
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
         diagnosis.save()
