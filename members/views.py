@@ -70,7 +70,7 @@ def login(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def delete(self, request):
+def logout(request):
     # 쿠키에 저장된 토큰 삭제 => 로그아웃 처리
     response = Response({
         "message": "Logout success"

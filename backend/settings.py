@@ -105,7 +105,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://localhost:8000",
     "https://127.0.0.1:8000",
     "http://cropdoctor.shop:3000",
-    "https://cropdoctor.shop:3000/"
+    # "https://cropdoctor.shop:3000",
 ]
 
 
@@ -252,12 +252,3 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
-
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_UNIQUE_EMAIL = True
-# ACCOUNT_USERNAME_REQUIRED = False
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'
-# ACCOUNT_EMAIL_VERIFICATION = 'none'
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# REST_USE_JWT = True
