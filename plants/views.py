@@ -51,6 +51,7 @@ def airequest(request) :
     plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imageName = request.GET.get("picture")
     plantType = int(request.GET.get("type"))
+    inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imageName
 
     # ai 리턴 값 리스트
     aiList = plantsAi.delay(inputS3Url, plantType).get()
@@ -59,7 +60,7 @@ def airequest(request) :
     if (len(aiList)==0) :
         result = {
             "message": "분석에 실패하였습니다.",
-            "result": None
+            "url": inputS3Url
         }
         os.remove(imageName)
         shutil.rmtree("plants/inference/runs")
