@@ -67,8 +67,6 @@ def airequest(request) :
 
 
     #작물지우기
-    # removeSet= {'작물'}
-    # aiList = [i for i in aiList if i not in removeSet]
     aiList.remove('작물')
 
     #병이없으면 정상으로 판단
@@ -98,17 +96,7 @@ def airequest(request) :
     try :
         disease = Disease.objects.get(name = diseaseName)
     except ObjectDoesNotExist :
-        # result = {
-        # "message": "질병이름 오류"
-        # }
         return Response(toResponseFormat("질병이름 오류",None), status.HTTP_202_ACCEPTED)
-
-    # diseaseCause = disease.cause
-    # diseasefeature = disease.feature
-    # diseaseSolution = disease.solution
-
-    # plantSave =Plant.objects.get(id=plantType+1)
-    # plantExplaination= plantSave.explaination
 
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
@@ -116,20 +104,20 @@ def airequest(request) :
     else:
         diagnosis = Diagnosis(plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
     
-    # result = {
-    #     "message": "분석성공",
-    #     "url": inputS3Url,
-    #     "disease_name": diseaseName,
-    #     "plant_name": plantList[plantType],
-    #     "plant_explaination": plantExplaination,
-    #     "result_url": profile_image_url,
-    #     "cause": diseaseCause,
-    #     "feature": diseasefeature,
-    #     "solution":diseaseSolution
-    # }
-    # serializer = aiSeriallizer(result)
+
     serializer = DiagnosisSerializer(diagnosis)
-    return Response(toResponseFormat("분석 성공",serializer.data)  ,status.HTTP_200_OK)
+    if aiList[0] == "정상" :
+        icorn = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/icons/"+str(plantType+1)+".png"
+    else:
+        icorn = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/icons/disease/"+str(plantType+1)+".png"
+        
+    response = {
+        "message" : "분석 성공",
+        "result" : serializer.data,
+        "icorn" : icorn
+    }
+    # print(serializer.data['plant']['id'])
+    return Response(response ,status.HTTP_200_OK)
     
 
 @api_view(['DELETE'])
