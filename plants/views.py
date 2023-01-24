@@ -27,7 +27,6 @@ S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([AllowAny]) 
 def s3Upload(request) :
     file = request.FILES['picture']
     profile_image_url = FileUpload(s3_client).upload(file)
@@ -40,18 +39,12 @@ def s3Upload(request) :
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def gethistories(request):
-    # email = request.query_params.get('email')
-    # member = Member.objects.get(email=email)
-    if request.user.pk :    
-        histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
-        serializer = DiagnosisSerializer(histories,many=True)
-        return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
-    else:
-        return Response(toResponseFormat("이메일이 존재하지 않습니다.",None),status=status.HTTP_401_UNAUTHORIZED)
+def gethistories(request):  
+    histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
+    serializer = DiagnosisSerializer(histories,many=True)
+    return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def airequest(request) :
     plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imageName = request.GET.get("picture")
