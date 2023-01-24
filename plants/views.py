@@ -60,9 +60,10 @@ def airequest(request) :
             "message": "분석에 실패하였습니다.",
             "url": inputS3Url
         }
+        
         os.remove(imageName)
         shutil.rmtree("plants/inference/runs")
-        return Response(result, status.HTTP_202_ACCEPTED)
+        return Response(toResponseFormat("분석에 실패하였습니다.",{"url":inputS3Url}), status.HTTP_202_ACCEPTED)
 
 
     #작물지우기
@@ -102,9 +103,9 @@ def airequest(request) :
         # }
         return Response(toResponseFormat("질병이름 오류",None), status.HTTP_202_ACCEPTED)
 
-    diseaseCause = disease.cause
-    diseasefeature = disease.feature
-    diseaseSolution = disease.solution
+    # diseaseCause = disease.cause
+    # diseasefeature = disease.feature
+    # diseaseSolution = disease.solution
 
     # plantSave =Plant.objects.get(id=plantType+1)
     # plantExplaination= plantSave.explaination
@@ -112,6 +113,8 @@ def airequest(request) :
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
         diagnosis.save()
+    else:
+        diagnosis = Diagnosis(plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
     
     # result = {
     #     "message": "분석성공",
