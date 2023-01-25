@@ -19,7 +19,7 @@ RUN pip install -r requirements.txt
 
 # django를 단독으로 실행할 때 사용 명령어
 # nginx를 이용해서 django를 실행할때는 주석처리!!
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+# CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # Expose application port 
-EXPOSE 8000
+# EXPOSE 8000
