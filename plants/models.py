@@ -6,6 +6,8 @@ class Disease(models.Model):
     cause = models.TextField(verbose_name="질병 원인")
     feature=models.TextField(verbose_name="병진")
     solution=models.TextField(verbose_name="방제 방법")
+    example = models.URLField(verbose_name="질병사진예시",default='')
+    example2 = models.URLField(verbose_name="질병사진예시2",default='')
     created_at = models.DateTimeField(auto_created=True,verbose_name="생성일")
     updated_at = models.DateTimeField(auto_now=True,verbose_name="업데이트일")
     
