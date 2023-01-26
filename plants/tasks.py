@@ -7,7 +7,7 @@ def typeUrl(plantType) :
     plantList = [
         Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "grape.pt"),
-        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "strawberry.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "cucumber.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "tomato.pt")
