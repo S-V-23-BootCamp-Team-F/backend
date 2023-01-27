@@ -42,8 +42,8 @@ def login(request):
             status=status.HTTP_200_OK
         )
         # jwt 토큰 => 쿠키에 저장
-        res.set_cookie("access", token.access_token, httponly=True)
-        res.set_cookie("refresh", token, httponly=True)
+        res.set_cookie("access", token.access_token)
+        res.set_cookie("refresh", token)
         return res
     else:
         return Response(toResponseFormat("유저 등록이 안돼있음.",None),status=status.HTTP_400_BAD_REQUEST)
