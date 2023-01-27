@@ -121,7 +121,6 @@ def airequest(request) :
     
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
 def deleteHistory(request,diagnosis_id):
     diagnosis = Diagnosis.objects.get(id=diagnosis_id)
     diagnosis.status = 'Close'
