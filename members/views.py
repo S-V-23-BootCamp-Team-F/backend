@@ -11,7 +11,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 @api_view(['POST'])
 def signup(request):
-    print(request.data)
     try :
         Member.objects.get(email=request.data['email'])
         return Response(toResponseFormat("회원이 이미 존재합니다.",None), status=status.HTTP_202_ACCEPTED)
