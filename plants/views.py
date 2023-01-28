@@ -30,13 +30,16 @@ S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 @api_view(['POST'])
 def s3Upload(request) :
     file = request.FILES['picture']
-    profile_image_url = FileUpload(s3_client).upload(file)
-
+    try:
+        profile_image_url = FileUpload(s3_client).upload(file)
+    except:
+        return JsonResponse(toResponseFormat("사진 업로드에 실패했습니다. 다시 시도해주세요",None),status=status.HTTP_400_BAD_REQUEST)
     result = {
         "message" : "사진 업로드 성공",
         "url" : profile_image_url
     }
     return JsonResponse(result, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -47,7 +50,6 @@ def gethistories(request):
 
 @api_view(['GET'])
 def airequest(request) :
-    # plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imageName = request.GET.get("picture")
     plantType = int(request.GET.get("type"))
     inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imageName
@@ -56,11 +58,6 @@ def airequest(request) :
     
     #분석에 실패했을 때
     if (len(aiList)==0) :
-        result = {
-            "message": "분석에 실패하였습니다.",
-            "url": inputS3Url
-        }
-        
         os.remove(imageName)
         shutil.rmtree("plants/inference/runs")
         return Response(toResponseFormat("분석에 실패하였습니다.",{"url":inputS3Url}), status.HTTP_202_ACCEPTED)
@@ -85,14 +82,21 @@ def airequest(request) :
         aws_secret_access_key = AWS_SECRET_KEY
     )
     file_id    = 'aiimages/'+imageName
-    s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
+    try:
+        s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png')
+    except:
+        #분석파일 지우기
+        shutil.rmtree("plants/inference/runs")
+        os.remove(imageName)
+        return Response(toResponseFormat("진단결과이미지 업로드 오류",None),status=status.HTTP_400_BAD_REQUEST)
+        
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
     #분석파일 지우기
     shutil.rmtree("plants/inference/runs")
     os.remove(imageName)
 
-
+    #질병이름 오류 예외처리
     try :
         disease = Disease.objects.get(name = diseaseName)
     except ObjectDoesNotExist :
@@ -122,7 +126,10 @@ def airequest(request) :
 
 @api_view(['DELETE'])
 def deleteHistory(request,diagnosis_id):
-    diagnosis = Diagnosis.objects.get(id=diagnosis_id)
+    try:
+        diagnosis = Diagnosis.objects.get(id=diagnosis_id)
+    except:
+        return Response(toResponseFormat("진단결과가 존재하지 않습니다. 다시 확인해주세요",None),status=status.HTTP_400_BAD_REQUEST)
     diagnosis.status = 'Close'
     diagnosis.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
