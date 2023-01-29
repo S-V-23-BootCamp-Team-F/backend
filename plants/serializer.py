@@ -39,3 +39,9 @@ class DiagnosisSerializer(serializers.ModelSerializer):
     class Meta:
         model=Diagnosis
         fields='__all__'
+
+class barChartSerializer(serializers.Serializer):
+    plant_id = serializers.IntegerField()
+    disease_id = serializers.IntegerField()
+    disease_count = serializers.IntegerField()
+        
