@@ -6,5 +6,6 @@ urlpatterns=[
     path("histories/", view=views.gethistories, name="hisories"),
     path("ais/",views.airequest,name="ais"),
     path("histories/<int:diagnosis_id>/",view=views.deleteHistory,name="deletehistory"),
-    path("barchart/",view=views.barChart,name="barchart")
+    path("barchart/",view=views.barChart,name="barchart"),
+    path("linechart/",view=views.lineChart,name="linechart")
 ]

@@ -17,6 +17,7 @@ import jwt
 from django.conf import settings
 from rest_framework.permissions import AllowAny
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
 # from djangorestframework_simplejwt.tokens import AccessToken
 
 load_dotenv()
@@ -156,3 +157,71 @@ def barChart(request):
                     break
 
     return Response(toResponseFormat("chart 데이터 불러오기 성공",dp),status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def lineChart(request) :
+    plantType = int(request.GET.get("type"))
+    try:
+        # 데이터 베이스 접속, 갹체 생성
+        cursor = connection.cursor()
+
+        strSql = f"select month(created_at),disease_id, count(*) from plants_diagnosis where plant_id = {plantType} and disease_id != 1 group by month(created_at),disease_id order by day(created_at),disease_id;"
+        # 쿼리문을 DB로 보내 쿼리 실행
+        cursor.execute(strSql)
+        # 쿼리 실행 결과를 서버로 부터 가지고 옴
+        datas = cursor.fetchall()
+
+        # 데이터 변경사항이 있다면 갱신
+        # connection.commit()
+        connection.close()
+        
+        plants = []
+        for data in datas:
+            row = {'month': data[0],
+                   'disease_id': data[1],
+                   'count': data[2]}
+            
+            plants.append(row)
+            
+
+    except:
+        # 쿼리문 실행 중에 잘못된 경우 실행 전으로 돌림
+       connection.rollback() 
+
+    # json 형태 변환
+    convertShape = []
+    plant_type = {2:'고추탄저병',3:'고추흰가루병',4:'칼슘결핍',5:'다량원소결핍 (N)',6:'다량원소결핍 (P)',
+                7:'다량원소결핍 (K)',8:'시설포도탄저병',9:'시설포도노균병',10:'일소피해',11:'축과병',12:'딸기잿빛곰팡이병',
+                13:'딸기흰가루병',14:'냉해피해',15:'오이노균병',16:'오이흰가루병',17:'토마토흰가루병',18:'토마토잿빛곰팡이병',
+                19:'열과',20:'파프리카흰가루병',21:'파프리카잘록병'}
+
+    for i in range(12):
+        convertShape.append({'name' : f'{i+1}월'})
+
+    for i in range(len(plants)):
+        if (plants[i]['month'] == 1):
+            convertShape[0][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 2):
+            convertShape[1][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 3):
+            convertShape[2][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 4):
+            convertShape[3][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 5):
+            convertShape[4][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 6):
+            convertShape[5][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 7):
+            convertShape[6][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 8):
+            convertShape[7][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 9):
+            convertShape[8][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 10):
+            convertShape[9][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 11):
+            convertShape[10][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+        elif (plants[i]['month'] == 12):
+            convertShape[11][plant_type[plants[i]['disease_id']]] = plants[i]['count']
+    
+    return Response(toResponseFormat("성공",convertShape),status=status.HTTP_200_OK)
