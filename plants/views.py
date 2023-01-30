@@ -50,7 +50,7 @@ def gethistories(request):
         histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
         serializer = DiagnosisSerializer(histories,many=True)
     except Exception as e:
-        return Response(toResponseFormat("예기치 못한 오류 발생"+ str(e),serializer.data),status=status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("예기치 못한 오류 발생"+ str(e),None),status=status.HTTP_400_BAD_REQUEST)
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -164,7 +164,7 @@ def barChart(request):
                         break
         return Response(toResponseFormat("chart 데이터 불러오기 성공",dp),status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + str(e),dp),status=status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + str(e),None),status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def lineChart(request) :
@@ -195,7 +195,7 @@ def lineChart(request) :
     except Exception as e:
         # 쿼리문 실행 중에 잘못된 경우 실행 전으로 돌림
         connection.rollback()
-        return Response(toResponseFormat("예기치 못한 오류 발생" + str(e), []),status=status.HTTP_400_BAD_REQUEST) 
+        return Response(toResponseFormat("예기치 못한 오류 발생" + str(e), None),status=status.HTTP_400_BAD_REQUEST) 
 
     # json 형태 변환
     convertShape = []
