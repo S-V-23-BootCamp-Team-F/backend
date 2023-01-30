@@ -147,6 +147,8 @@ def barChart(request):
     disease_name = Disease.objects.values('name')
     print(disease_name[0]['name'])
     dp = []
+    if len(barChart) == 0:
+        return Response(toResponseFormat("chart 데이터를 불러올 수 없습니다.",dp),status=status.HTTP_202_ACCEPTED)
     for data in barChart:
         if {'name' : plant_type[data['plant_id']]} not in [{'name' : i['name']} for i in dp] :
             dp.append({'name' : plant_type[data['plant_id']], disease_name[data['disease_id']+1]['name']:data['disease_count']})
