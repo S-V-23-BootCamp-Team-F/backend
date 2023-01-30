@@ -34,8 +34,8 @@ def s3Upload(request) :
     file = request.FILES['picture']
     try:
         profile_image_url = FileUpload(s3_client).upload(file)
-    except:
-        return JsonResponse(toResponseFormat("사진 업로드에 실패했습니다. 다시 시도해주세요",None),status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return JsonResponse(toResponseFormat("사진 업로드에 실패했습니다. 다시 시도해주세요" + e, None),status=status.HTTP_400_BAD_REQUEST)
     result = {
         "message" : "사진 업로드 성공",
         "url" : profile_image_url
@@ -45,9 +45,12 @@ def s3Upload(request) :
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def gethistories(request):  
-    histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
-    serializer = DiagnosisSerializer(histories,many=True)
+def gethistories(request): 
+    try : 
+        histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
+        serializer = DiagnosisSerializer(histories,many=True)
+    except Exception as e:
+        return Response(toResponseFormat("예기치 못한 오류 발생"+ e,serializer.data),status=status.HTTP_400_BAD_REQUEST)
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -86,12 +89,12 @@ def airequest(request) :
     file_id    = 'aiimages/'+imageName
     try:
         s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png')
-    except:
+    except Exception as e:
         #분석파일 지우기
         shutil.rmtree("plants/inference/runs")
         os.remove(imageName)
-        return Response(toResponseFormat("진단결과이미지 업로드 오류",None),status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(toResponseFormat("진단결과이미지 업로드 오류" + e, None),status=status.HTTP_400_BAD_REQUEST)
+    
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
     #분석파일 지우기
@@ -102,8 +105,9 @@ def airequest(request) :
     try :
         disease = Disease.objects.get(name = diseaseName)
     except ObjectDoesNotExist :
-        return Response(toResponseFormat("질병이름 오류",None), status.HTTP_202_ACCEPTED)
-
+        return Response(toResponseFormat("질병이름 오류", None), status.HTTP_202_ACCEPTED)
+    except Exception as e:
+        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + e, None), status.HTTP_400_BAD_REQUEST)
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
         diagnosis.save()
@@ -130,8 +134,8 @@ def airequest(request) :
 def deleteHistory(request,diagnosis_id):
     try:
         diagnosis = Diagnosis.objects.get(id=diagnosis_id)
-    except:
-        return Response(toResponseFormat("진단결과가 존재하지 않습니다. 다시 확인해주세요",None),status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(toResponseFormat("진단결과가 존재하지 않습니다. 다시 확인해주세요" + e,None),status=status.HTTP_400_BAD_REQUEST)
     diagnosis.status = 'Close'
     diagnosis.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
@@ -142,23 +146,25 @@ def toResponseFormat(message,result):
 
 @api_view(['GET'])
 def barChart(request):
-    barChart = Diagnosis.objects.filter(~Q(disease_id = 1)).values('plant_id').annotate(Count('disease_id'), disease_count = F('disease_id__count')).values('plant_id','disease_id','disease_count')
-    plant_type = {1:'고추',2:'포도',3:'딸기',4:'오이',5:'파프리카',6:'토마토'}
-    disease_name = Disease.objects.values('name')
-    print(disease_name[0]['name'])
-    dp = []
-    if len(barChart) == 0:
-        return Response(toResponseFormat("chart 데이터를 불러올 수 없습니다.",dp),status=status.HTTP_202_ACCEPTED)
-    for data in barChart:
-        if {'name' : plant_type[data['plant_id']]} not in [{'name' : i['name']} for i in dp] :
-            dp.append({'name' : plant_type[data['plant_id']], disease_name[data['disease_id']+1]['name']:data['disease_count']})
-        else:
-            for i in range(len(dp)):
-                if dp[i]['name'] == plant_type[data['plant_id']]:
-                    dp[i][disease_name[data['disease_id']]['name']] = data['disease_count']
-                    break
-
-    return Response(toResponseFormat("chart 데이터 불러오기 성공",dp),status=status.HTTP_200_OK)
+    try:
+        barChart = Diagnosis.objects.filter(~Q(disease_id = 1)).values('plant_id').annotate(Count('disease_id'), disease_count = F('disease_id__count')).values('plant_id','disease_id','disease_count')
+        plant_type = {1:'고추',2:'포도',3:'딸기',4:'오이',5:'파프리카',6:'토마토'}
+        disease_name = Disease.objects.values('name')
+        print(disease_name[0]['name'])
+        dp = []
+        if len(barChart) == 0:
+            return Response(toResponseFormat("chart 데이터를 불러올 수 없습니다.",dp),status=status.HTTP_202_ACCEPTED)
+        for data in barChart:
+            if {'name' : plant_type[data['plant_id']]} not in [{'name' : i['name']} for i in dp] :
+                dp.append({'name' : plant_type[data['plant_id']], disease_name[data['disease_id']+1]['name']:data['disease_count']})
+            else:
+                for i in range(len(dp)):
+                    if dp[i]['name'] == plant_type[data['plant_id']]:
+                        dp[i][disease_name[data['disease_id']]['name']] = data['disease_count']
+                        break
+        return Response(toResponseFormat("chart 데이터 불러오기 성공",dp),status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + e,dp),status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def lineChart(request) :
@@ -186,9 +192,10 @@ def lineChart(request) :
             plants.append(row)
             
 
-    except:
+    except Exception as e:
         # 쿼리문 실행 중에 잘못된 경우 실행 전으로 돌림
-       connection.rollback() 
+        connection.rollback()
+        return Response(toResponseFormat("예기치 못한 오류 발생" + e, []),status=status.HTTP_400_BAD_REQUEST) 
 
     # json 형태 변환
     convertShape = []
