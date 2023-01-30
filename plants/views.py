@@ -35,7 +35,7 @@ def s3Upload(request) :
     try:
         profile_image_url = FileUpload(s3_client).upload(file)
     except Exception as e:
-        return JsonResponse(toResponseFormat("사진 업로드에 실패했습니다. 다시 시도해주세요" + e, None),status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(toResponseFormat("사진 업로드에 실패했습니다. 다시 시도해주세요" + str(e), None),status=status.HTTP_400_BAD_REQUEST)
     result = {
         "message" : "사진 업로드 성공",
         "url" : profile_image_url
@@ -50,7 +50,7 @@ def gethistories(request):
         histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
         serializer = DiagnosisSerializer(histories,many=True)
     except Exception as e:
-        return Response(toResponseFormat("예기치 못한 오류 발생"+ e,serializer.data),status=status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("예기치 못한 오류 발생"+ str(e),serializer.data),status=status.HTTP_400_BAD_REQUEST)
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -93,7 +93,7 @@ def airequest(request) :
         #분석파일 지우기
         shutil.rmtree("plants/inference/runs")
         os.remove(imageName)
-        return Response(toResponseFormat("진단결과이미지 업로드 오류" + e, None),status=status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("진단결과이미지 업로드 오류" + str(e), None),status=status.HTTP_400_BAD_REQUEST)
     
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
@@ -107,7 +107,7 @@ def airequest(request) :
     except ObjectDoesNotExist :
         return Response(toResponseFormat("질병이름 오류", None), status.HTTP_202_ACCEPTED)
     except Exception as e:
-        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + e, None), status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + str(e), None), status.HTTP_400_BAD_REQUEST)
     if (request.user.pk != None) :
         diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
         diagnosis.save()
@@ -135,7 +135,7 @@ def deleteHistory(request,diagnosis_id):
     try:
         diagnosis = Diagnosis.objects.get(id=diagnosis_id)
     except Exception as e:
-        return Response(toResponseFormat("진단결과가 존재하지 않습니다. 다시 확인해주세요" + e,None),status=status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("진단결과가 존재하지 않습니다. 다시 확인해주세요" + str(e),None),status=status.HTTP_400_BAD_REQUEST)
     diagnosis.status = 'Close'
     diagnosis.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
@@ -164,7 +164,7 @@ def barChart(request):
                         break
         return Response(toResponseFormat("chart 데이터 불러오기 성공",dp),status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + e,dp),status=status.HTTP_400_BAD_REQUEST)
+        return Response(toResponseFormat("예기치 못한 오류가 발생했습니다." + str(e),dp),status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def lineChart(request) :
@@ -195,7 +195,7 @@ def lineChart(request) :
     except Exception as e:
         # 쿼리문 실행 중에 잘못된 경우 실행 전으로 돌림
         connection.rollback()
-        return Response(toResponseFormat("예기치 못한 오류 발생" + e, []),status=status.HTTP_400_BAD_REQUEST) 
+        return Response(toResponseFormat("예기치 못한 오류 발생" + str(e), []),status=status.HTTP_400_BAD_REQUEST) 
 
     # json 형태 변환
     convertShape = []
