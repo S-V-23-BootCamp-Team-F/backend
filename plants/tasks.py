@@ -9,11 +9,10 @@ def typeUrl(plantType) :
         Path.joinpath(Path.cwd(), "plants", "inference", "grape.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "strawberry.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "cucumber.pt"),
-        Path.joinpath(Path.cwd(), "plants", "inference", "pepper.pt"),
+        Path.joinpath(Path.cwd(), "plants", "inference", "paprika.pt"),
         Path.joinpath(Path.cwd(), "plants", "inference", "tomato.pt")
     ]
     return plantList[plantType]
-
 
 @app.task()
 def plantsAi(imageUrl, plantType):
