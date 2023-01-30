@@ -11,4 +11,5 @@ urlpatterns = [
     path("signup/",view = views.signup  , name="sign_up"),
     path('login/', view = views.login, name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/',view=views.logout,name="logout")
 ]

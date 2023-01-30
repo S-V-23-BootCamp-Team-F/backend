@@ -104,6 +104,8 @@ CORS_ORIGIN_WHITELIST = [
     "https://127.0.0.1:3000",
     "https://localhost:8000",
     "https://127.0.0.1:8000",
+    "http://cropdoctor.shop:3000",
+    # "https://cropdoctor.shop:3000",
 ]
 
 
@@ -206,7 +208,6 @@ AUTH_USER_MODEL = 'members.Member'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
         'rest_framework.permissions.AllowAny', 
     ),
     'DEFAULT_AUTHENTICATION_CLASSES':(
@@ -252,11 +253,12 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_UNIQUE_EMAIL = True
-# ACCOUNT_USERNAME_REQUIRED = False
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'
-# ACCOUNT_EMAIL_VERIFICATION = 'none'
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# REST_USE_JWT = True
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis-18692.c54.ap-northeast-1-2.ec2.cloud.redislabs.com:18692",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}

@@ -15,6 +15,7 @@ from rest_framework.decorators import permission_classes
 import jwt
 from django.conf import settings
 from rest_framework.permissions import AllowAny
+from django.core.exceptions import ObjectDoesNotExist
 # from djangorestframework_simplejwt.tokens import AccessToken
 
 load_dotenv()
@@ -27,7 +28,6 @@ S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([AllowAny]) 
 def s3Upload(request) :
     file = request.FILES['picture']
     profile_image_url = FileUpload(s3_client).upload(file)
@@ -40,44 +40,43 @@ def s3Upload(request) :
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def gethistories(request):
+def gethistories(request):  
     histories = Diagnosis.objects.filter(member = request.user.pk,status="OK")
     serializer = DiagnosisSerializer(histories,many=True)
     return Response(toResponseFormat("히스토리 성공",serializer.data),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def airequest(request) :
-    plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
+    # plantList = ["고추","포도","딸기","오이","파프리카","토마토"]
     imageName = request.GET.get("picture")
     plantType = int(request.GET.get("type"))
+    inputS3Url = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/images/"+imageName
 
-    # ai 리턴 값 리스트
     aiList = plantsAi.delay(inputS3Url, plantType).get()
     
-    # 분석 실패했을 때 리턴
+    #분석에 실패했을 때
     if (len(aiList)==0) :
         result = {
             "message": "분석에 실패하였습니다.",
-            "result": None
+            "url": inputS3Url
         }
+        
         os.remove(imageName)
         shutil.rmtree("plants/inference/runs")
-        return Response(result, status.HTTP_202_ACCEPTED)
+        return Response(toResponseFormat("분석에 실패하였습니다.",{"url":inputS3Url}), status.HTTP_202_ACCEPTED)
 
-    print ("#################################################################")
-    print (aiList)
 
-    if (aiList[0] == '작물') :
-        del aiList[0]
+    #작물지우기
+    aiList.remove('작물')
 
-    # 정상 처리
-    if (len(aiList) == 0):
-        aiList.insert(0,'정상')
+    #병이없으면 정상으로 판단
+    if len(aiList) == 0 : aiList.insert(0,'정상')
 
+    #제일 유력한 질병 추출
     diseaseName = aiList[0]
+    if diseaseName == '칼슘결핌' : diseaseName = '칼슘결핍'
     
-    # s3에 이미지 올리기
+    #s3 업로드
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imageName)
     data = open(resultImgeUrl,'rb')
     s3 = boto3.resource(
@@ -89,37 +88,36 @@ def airequest(request) :
     s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png') 
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
-    # 폴더 삭제
+    #분석파일 지우기
     shutil.rmtree("plants/inference/runs")
     os.remove(imageName)
 
-    # 질병 내용 가져오기
-    disease = Disease.objects.get(name = diseaseName)
-    diseaseCause = disease.cause
-    diseasefeature = disease.feature
-    diseaseSolution = disease.solution
 
-    plantSave =Plant.objects.get(id=plantType+1)
-    plantExplaination= plantSave.explaination
+    try :
+        disease = Disease.objects.get(name = diseaseName)
+    except ObjectDoesNotExist :
+        return Response(toResponseFormat("질병이름 오류",None), status.HTTP_202_ACCEPTED)
 
-    # 진단 테이블 저장 / 비회원일 때는 저장 안함
     if (request.user.pk != None) :
-        diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=plantSave,disease=disease,picture=inputS3Url,result_picture=profile_image_url)
+        diagnosis = Diagnosis(member=Member.objects.get(id=request.user.pk),plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
         diagnosis.save()
+    else:
+        diagnosis = Diagnosis(plant=Plant.objects.get(id=plantType+1),disease=disease,picture=inputS3Url,result_picture=profile_image_url)
     
-    result = {
-        "message": "분석성공",
-        "url": inputS3Url,
-        "disease_name": diseaseName,
-        "plant_name": plantList[plantType],
-        "plant_explaination": plantExplaination,
-        "result_url": profile_image_url,
-        "cause": diseaseCause,
-        "feature": diseasefeature,
-        "solution":diseaseSolution
+
+    serializer = DiagnosisSerializer(diagnosis)
+    if aiList[0] == "정상" :
+        icorn = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/icons/"+str(plantType+1)+".png"
+    else:
+        icorn = "https://silicon-valley-bootcamp.s3.ap-northeast-2.amazonaws.com/icons/disease/"+str(plantType+1)+".png"
+        
+    response = {
+        "message" : "분석 성공",
+        "result" : serializer.data,
+        "icorn" : icorn
     }
-    serializer = aiSeriallizer(result)
-    return Response(serializer.data ,status.HTTP_200_OK)
+    # print(serializer.data['plant']['id'])
+    return Response(response ,status.HTTP_200_OK)
     
 
 @api_view(['DELETE'])
