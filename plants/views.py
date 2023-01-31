@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from .serializer import PlantSerializer, aiSeriallizer,DiagnosisSerializer,barChartSerializer
 from .tasks import plantsAi
 import os, shutil, uuid, boto3
+from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from rest_framework.permissions import IsAuthenticated,AllowAny
@@ -19,6 +20,21 @@ from rest_framework.permissions import AllowAny
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
 # from djangorestframework_simplejwt.tokens import AccessToken
+
+# 파일 지우기
+def delete_old_files(path_target, days_elapsed):
+    for f in os.listdir(path_target): # 디렉토리를 조회한다
+        f = os.path.join(path_target, f)
+        if os.path.isfile(f): # 파일이면
+            timestamp_now = datetime.now().timestamp() # 타임스탬프(단위:초)
+            # st_mtime(마지막으로 수정된 시간)기준 X일 경과 여부
+            is_old = os.stat(f).st_mtime < timestamp_now - (days_elapsed * 60)
+            if is_old: # X일 경과했다면
+                try:
+                    os.remove(f) # 파일을 지운다
+                    print(f, 'is deleted') # 삭제완료 로깅
+                except OSError: # Device or resource busy (다른 프로세스가 사용 중)등의 이유
+                    print(f, 'can not delete') # 삭제불가 로깅
 
 load_dotenv()
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
@@ -64,7 +80,7 @@ def airequest(request) :
     #분석에 실패했을 때
     if (len(aiList)==0) :
         os.remove(imageName)
-        shutil.rmtree("plants/inference/runs")
+        # shutil.rmtree("plants/inference/runs")
         return Response(toResponseFormat("분석에 실패하였습니다.",{"url":inputS3Url}), status.HTTP_202_ACCEPTED)
 
 
@@ -91,14 +107,15 @@ def airequest(request) :
         s3.Bucket(S3_BUCKET_NAME).put_object(Key=file_id, Body=data, ContentType='image/png')
     except Exception as e:
         #분석파일 지우기
-        shutil.rmtree("plants/inference/runs")
+        # shutil.rmtree("plants/inference/runs")
         os.remove(imageName)
         return Response(toResponseFormat("진단결과이미지 업로드 오류" + str(e), None),status=status.HTTP_400_BAD_REQUEST)
     
     profile_image_url = f'https://{S3_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{file_id}'
 
+
     #분석파일 지우기
-    shutil.rmtree("plants/inference/runs")
+    delete_old_files(path_target=Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp"), days_elapsed=5)
     os.remove(imageName)
 
     #질병이름 오류 예외처리
