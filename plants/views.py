@@ -85,7 +85,8 @@ def airequest(request) :
 
 
     #작물지우기
-    aiList.remove('작물')
+    removeSet= {'작물'}
+    aiList = [i for i in aiList if i not in removeSet]
 
     #병이없으면 정상으로 판단
     if len(aiList) == 0 : aiList.insert(0,'정상')
@@ -93,6 +94,7 @@ def airequest(request) :
     #제일 유력한 질병 추출
     diseaseName = aiList[0]
     if diseaseName == '칼슘결핌' : diseaseName = '칼슘결핍'
+    if diseaseName == '칼슘켤핍' : diseaseName = '칼슘결핍'
     
     #s3 업로드
     resultImgeUrl = Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp", imageName)
