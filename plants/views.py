@@ -28,7 +28,7 @@ def delete_old_files(path_target, days_elapsed):
         if os.path.isfile(f): # 파일이면
             timestamp_now = datetime.now().timestamp() # 타임스탬프(단위:초)
             # st_mtime(마지막으로 수정된 시간)기준 X일 경과 여부
-            is_old = os.stat(f).st_mtime < timestamp_now - (days_elapsed * 30)
+            is_old = os.stat(f).st_mtime < timestamp_now - (days_elapsed * 60)
             if is_old: # X일 경과했다면
                 try:
                     os.remove(f) # 파일을 지운다
@@ -115,7 +115,7 @@ def airequest(request) :
 
 
     #분석파일 지우기
-    delete_old_files(path_target=Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp"), days_elapsed=1)
+    delete_old_files(path_target=Path.joinpath(Path.cwd(), "plants", "inference", "runs", "detect", "exp"), days_elapsed=5)
     os.remove(imageName)
 
     #질병이름 오류 예외처리
